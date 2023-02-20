@@ -13,3 +13,11 @@ Create a new popup by calling `PopupEngine.createPopup(text, confirm, cancel)` t
 - **text**: the text that will be displayed by the popup
 - **confirm**: a anonymous funtion that will be called when the user presses the confirm button
 - **cancel**: a anonymous funtion that will be called when the user presses the cancel button
+
+
+## Customization
+
+For now you are supposed to config the libary by using the css classes
+- **popupEngineContainer**: the container covering the whole screen and creating a backdrop using its background color
+- **popupEngineBody**: the actual box that contains text and buttons
+- **popupEngineButton**: the buttons, :nth-cild(1) beeing confrm and 2 beeing cancel
