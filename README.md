@@ -3,11 +3,13 @@ Simple js libary that adds a PopupEngine class that can be used to create simple
 
 **disclaimer: this libary is still a early beta and doesnt offfer more than the most basic features**
 
-##Initialization
+## Initialization
+
 Use `PopupEngine.init()` to create the html that the engine uses. You can test the succes of this init by calling `PopupEngine.test()` in the console which will create a popup and check for simple errors with the html and log possible errors.
 
-##Usage
+## Usage
+
 Create a new popup by calling `PopupEngine.createPopup(text, confirm, cancel)` this function expects 3 arguments: 
--text: the text that will be displayed by the popup
--confirm: a anonymous funtion that will be called when the user presses the confirm button
--cancel: a anonymous funtion that will be called when the user presses the cancel button
+- **text**: the text that will be displayed by the popup
+- **confirm**: a anonymous funtion that will be called when the user presses the confirm button
+- **cancel**: a anonymous funtion that will be called when the user presses the cancel button
