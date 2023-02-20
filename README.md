@@ -5,6 +5,8 @@ Simple js libary that adds a PopupEngine class that can be used to create simple
 
 ## Initialization
 
+Import the engine in your htmls head `<script src='popupEngine.js'></script>`.
+
 Use `PopupEngine.init()` to create the html that the engine uses. You can test the succes of this init by calling `PopupEngine.test()` in the console which will create a popup and check for simple errors with the html and log possible errors.
 
 ## Usage
