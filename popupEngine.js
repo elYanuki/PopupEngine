@@ -25,17 +25,23 @@ class PopupEngine{
 		//create needed html
 		this.popup.classList.add("popupEngineContainer")
 		this.popup.style.cssText = `
-			position: absolute;
+			position: fixed;
 			inset: 0;
-			background-color: rgba(0, 0, 0, 0.5);
+			background-color: var(--popupEngine-blur-color);
 			z-index: 1000;
 			display: none;
 			place-content: center;
-			font-family: sans-serif;`
+			font-family: sans-serif;
+			color: var(--popupEngine-color);
+			
+			--popupEngine-blur-color: rgba(0, 0, 0, 0.5);
+			--popupEngine-background-color: white;
+			--popupEngine-color: black;
+			`
 
 		this.popupContent.classList.add("popupEngineContent")
 		this.popupContent.style.cssText = `
-			background-color: hsl(0, 0%, 100%);
+			background-color: var(--popupEngine-background-color);
 			padding: 2vw 5vw;
 			max-width: 90vw;
 			min-width: 25vw;
@@ -130,6 +136,7 @@ class PopupEngine{
 					input.name = i
 
 					let label = document.createElement("label")
+					label.classList.add("popupEngineInputLabel")
 					label.style.cssText = `
 					font-size: .9rem;`
 					label.innerText = settings.inputs[i].label
@@ -140,7 +147,8 @@ class PopupEngine{
 				input.style.cssText = `
 					padding: .5rem;
 					border: 1px solid gray;
-					margin: .2rem 0 .5rem 0;`
+					margin: .2rem 0 .5rem 0;
+					color: var(--popupEngine-color);`
 				input.type = settings.inputs[i].type || "text"
 				input.placeholder = settings.inputs[i].placeholder || ""
 				input.classList.add("popupEngineInput")
@@ -168,7 +176,8 @@ class PopupEngine{
 				button.style.cssText = `
 					cursor: pointer;
 					border: 1px solid gray;
-					padding: .5rem;`
+					padding: .5rem;
+					color: var(--popupEngine-color);`
 				button.innerText = settings.buttons[i].text
 				button.onclick = function () { 
 					PopupEngine.closePopup(
