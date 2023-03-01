@@ -33,7 +33,9 @@ class PopupEngine{
 			place-content: center;
 			font-family: sans-serif;
 			color: var(--popupEngine-color);
-			
+			transition: opacity .3s;
+			opacity:0;
+
 			--popupEngine-blur-color: rgba(0, 0, 0, 0.5);
 			--popupEngine-background-color: white;
 			--popupEngine-color: black;
@@ -46,7 +48,10 @@ class PopupEngine{
 			max-width: 90vw;
 			min-width: 25vw;
 			overflow: hidden;
-			word-wrap: break-word;`
+			word-wrap: break-word;
+			transition: scale .3s;
+			transition-timing-function: cubic-bezier(.13,.68,.46,1.33);
+			scale: 0;`
 
 		this.popup.appendChild(this.popupContent)
 
@@ -202,6 +207,10 @@ class PopupEngine{
 	
 			//show popup
 			this.popup.style.display = "grid"
+			setTimeout(function(){
+				document.querySelector('.popupEngineContainer').style.opacity = 1
+				document.querySelector('.popupEngineContent').style.scale = 1
+			},0)
 		})
 	}
 
@@ -221,7 +230,9 @@ class PopupEngine{
 
 		if(closePopup){
 			this.popup.style.display = "none"
-	
+			this.popup.style.opacity = 0
+			this.popupContent.style.scale = 0
+
 			this.endMainPopup(data)
 		}
 	}
