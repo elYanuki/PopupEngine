@@ -59,7 +59,7 @@ buttons: [
 ]
 ```
 
-### **inputs**
+### **Inputs**
 
 Expects a array of input objects which have the following possible settings:
 - **type**: the type of the input, accepts all regular html types. **gotta be changed** Defaults to `"text"`
@@ -94,7 +94,9 @@ The `PopupEngine.createPopup()` function returns a promise which is resolved wit
 
 This can be used to only run further code when the popup is closed, add more functionality to the buttons, or work better with the entered data.
 
-### **Example**
+---
+
+## **Example**
 This example contains all currently available features of the engine
 ```JS
 PopupEngine.init({doLogs: true})
