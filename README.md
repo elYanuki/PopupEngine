@@ -11,6 +11,7 @@ Download the engine and inport it in your html's head `<script src='PopupEngine.
 
 Use `PopupEngine.init()` to create the html that the engine uses. The init function also accepts a optional config object whith the following settings:
 - **doLogs**: controlls wheter or not the engine will output errors and information to the console.
+- **modalBlur**: wheter or not the modal window should blur its background.
 
 You can test the success of the init by calling `PopupEngine.test()` in the console which will create a popup and check for simple errors with the generated html and log possible errors.
 
@@ -101,7 +102,7 @@ This example contains all currently available features of the engine
 ```JS
 PopupEngine.init({doLogs: true})
 
-PopupEngine.createPopup({
+PopupEngine.createModal({
 	heading: "my popup",
 	text: "please enter your name and age",
 	inputs: [
@@ -132,11 +133,12 @@ PopupEngine.createPopup({
 ---
 
 ## Customization
+For general configuration see the [Initialization](#initialization).
 
 Every element created by the Engine has a css class assigned to it and uses css variables defined in the `popupEngineContainer` class.
+The engine creates its own css file and uses a :where() selector that should give everything a specificity of 0 and therefore allow it to be overwritten. I have tested this in all major browsers, if you still run into problems just add `body .popupEngineSelector{}`.
 
 The css classes are listed in the usage section above.
 The following variables are available: 
-- `--popupEngine-blur-color`
 - `--popupEngine-background-color`
 - `--popupEngine-color`
