@@ -6,10 +6,11 @@ class PopupEngine{
 	static initialized = false
 	static config = {
 		doLogs: true,
-		modalBlur: true
+		preferedInlinePopupPosition: "top",
 	}
 
-	static endModal 
+	static endModal
+	static observer
 
 	static init(config){
 		if(this.initialized == true){
@@ -20,7 +21,10 @@ class PopupEngine{
 
 		//configure the engine
 		if(config){
-			this.config = config
+			if(config.doLogs)
+				this.config.doLogs = config.doLogs
+			if(config.preferedInlinePopupPosition)
+				this.config.preferedInlinePopupPosition = config.preferedInlinePopupPosition
 		}
 
 		//create needed html
@@ -48,6 +52,12 @@ class PopupEngine{
 		document.body.appendChild(this.inline)
 
 		this.createCSS()
+		this.createDOMchangeListener()
+
+		//add hover listeners to existing elements that request inline popups
+		document.querySelectorAll('*[data-popupText]').forEach((element)=>{
+			this.addHoverListeners(element)
+		})
 
 		this.initialized = true
 	}
@@ -72,7 +82,7 @@ class PopupEngine{
 			color: var(--popupEngine-color);
 			transition: opacity .3s;
 			opacity:0;
-			${this.config.modalBlur ? "backdrop-filter: blur(4px);" : ""}
+			backdrop-filter: blur(4px);
 
 			--popupEngine-background-color: white;
 			--popupEngine-color: black;
@@ -133,13 +143,16 @@ class PopupEngine{
 		//#endregion
 		
 		//----------- inline -----------//
+
 		//#region 
 
 		stylesheet.insertRule(`:where(.popupEngineInlineContainer) { 
-			position: absolute;
+			position: fixed;
 			z-index: 1000;
 			display: grid;
 			place-items: center;
+			top: 0;
+			transition: scale .3s;
 
 			--popupEngine-background-color: white;
 		}`)
@@ -159,11 +172,16 @@ class PopupEngine{
 		stylesheet.insertRule(`:where(.popupEngineInlinePointer) { 
 			content: "";
 			background-color: var(--popupEngine-background-color);
-			transform:  translateY(100%) rotate(45deg);
+			transform: rotate(45deg) translateY(50%);
 			box-shadow: 0 0 .3rem .3rem rgba(0,0,0,.1);
 			aspect-ratio: 1;
 			width: 1rem;
 			grid-area: 1 / 1 / 2 / 2;
+			align-self: end;
+		}`)
+		stylesheet.insertRule(`.popupEngineInlineContainer.atBottom .popupEngineInlinePointer { 
+			transform: translateY(-40%) rotate(45deg);
+			align-self: start;
 		}`)
 
 		stylesheet.insertRule(`:where(.popupEngineInlineText) {
@@ -172,24 +190,65 @@ class PopupEngine{
 
 		stylesheet.insertRule(`:where(.popupEngineInlineHeading) {
 			text-align: center;
-			margin-bottom: 1rem;
+			font-size: 1.2rem;
+			margin: 0 0 .5rem 0;
 		}`)
 
 		//#endregion
 	}
 
-	static createInlinePopup(settings = {}){
-		if(!this.checkHTML)return
+	static createDOMchangeListener(){
+		// Options for the observer (which mutations to observe)
+		const config = { attributes: true, childList: true, subtree: true }
 
-		if(!settings.position)
-			settings.position = "mouse"
+		let relevantAttributes = ["data-popuptext", "data-popupheading", "data-autocreatepopup"]
 
-		if(settings.position instanceof Element){
-			console.log("elem")
+		// Callback function to execute when mutations are observed
+		const callback = (mutationList, observer) => {
+			for (const mutation of mutationList) {
+				console.log(mutation.attributeName)
+				if (mutation.type === "childList" || relevantAttributes.includes(mutation.attributeName)) {
+					console.log("mutation detected")
+
+					mutation.addedNodes.forEach((elem)=>{
+						if(elem.dataset.popuptext != undefined){
+							this.addHoverListeners(elem)
+						}
+					}) 
+				}
+			}
+		};
+
+		// Create an observer instance linked to the callback function
+		this.observer = new MutationObserver(callback)
+
+		// Start observing the target node for configured mutations
+		this.observer.observe(document, config)
+	}
+
+	static addHoverListeners(elem){
+		if(elem.dataset.autocreatepopup === "false")
+			return
+
+		elem.addEventListener("mouseenter", ()=>{this.createInlinePopup({
+			position: elem, 
+			text: elem.dataset.popuptext, 
+			heading: elem.dataset.popupheading,
+			element: elem
+		})})
+		elem.addEventListener("mouseleave", ()=>{this.closeInlinePopup(elem)})
+	}
+
+	static createInlinePopup(settings){
+		if(!this.checkHTML || !settings )return
+
+		if(!settings.position){
+			if(this.config.doLogs)
+				console.error("position setting is required: either a element or a mouse event")
+			return
 		}
-		else if(settings.position == "mouse event so that you can use clientX"){
-			console.log("mouse")
-		}
+
+		this.observer.disconnect()
 
 		this.inline.innerHTML = ""
 
@@ -218,7 +277,51 @@ class PopupEngine{
 
 		this.inline.appendChild(content)
 
+		if(settings.position instanceof Element){
+			let rect = settings.position.getBoundingClientRect();
+
+			let topValue = rect.top - rect.height - this.inline.offsetHeight + 5
+			if(topValue < 0){
+				topValue = rect.top + rect.height + 10
+				this.inline.classList.add("atBottom")
+			}
+			else{
+				this.inline.classList.remove("atBottom")
+			}
+
+			if(this.config.preferedInlinePopupPosition == "bottom"){
+				topValue = rect.top + rect.height + 10
+				this.inline.classList.add("atBottom")
+			}
+
+			this.inline.style.top = topValue + "px"
+			this.inline.style.left = `max(${rect.left - this.inline.offsetWidth/2 + rect.width/2}px, 0px)`
+
+			settings.position.classList.add("popupVisible")
+		}
+		else if(settings.position.clientX){
+			let topValue = settings.position.clientY - this.inline.offsetHeight - 10
+			if(topValue < 0){
+				topValue = settings.position.clientY + 10
+				this.inline.classList.add("atBottom")
+			}
+			else{
+				this.inline.classList.remove("atBottom")
+			}
+
+			this.inline.style.top = topValue + "px"
+			this.inline.style.left = `max(${settings.position.clientX - this.inline.offsetWidth/2}px, 0px)`
+		}
+
+		settings?.element.classList.add("popupVisible")
+
 		this.inline.style.scale = 1
+	}
+
+	static closeInlinePopup(elem){
+		elem.classList.remove("popupVisible")
+		this.inline.style.scale = 0
+		this.createDOMchangeListener()
 	}
 
 	static createModal(settings = {}){

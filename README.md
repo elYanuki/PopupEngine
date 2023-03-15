@@ -11,7 +11,6 @@ Download the engine and inport it in your html's head `<script src='PopupEngine.
 
 Use `PopupEngine.init()` to create the html that the engine uses. The init function also accepts a optional config object whith the following settings:
 - **doLogs**: controlls wheter or not the engine will output errors and information to the console.
-- **modalBlur**: wheter or not the modal window should blur its background.
 
 You can test the success of the init by calling `PopupEngine.test()` in the console which will create a popup and check for simple errors with the generated html and log possible errors.
 
