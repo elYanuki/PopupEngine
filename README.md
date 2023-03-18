@@ -182,7 +182,12 @@ let userNameElem = document.querySelector('#userName')
 let closeTimeout
 
 userNameElem.addEventListener("click", (event)=>{
-	PopupEngine.createInlinePopup({position: event, element: userNameElem, text: userNameElem.dataset.popupText , heading: "Stevan"})
+	PopupEngine.createInlinePopup({
+		position: event, 
+		element: userNameElem, 
+		text: userNameElem.dataset.popupText, 
+		heading: "Stevan"
+	})
 	
 	clearTimeout(closeTimeout)
 	closeTimeout = setTimeout(function(){

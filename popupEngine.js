@@ -14,6 +14,10 @@ class PopupEngine{
 	static endModal
 	static observer
 
+	/**
+	 * creates the needed html and configures the engine
+	 * @param {JSON} config {object} of config options like doLogs, defaultPopupDelay. Check README for details.
+	 */
 	static init(config){
 		if(this.initialized == true){
 			if(this.config.doLogs)
@@ -226,6 +230,9 @@ class PopupEngine{
 		//#endregion
 	}
 
+	/**
+	 * creates a MutationObserver that fires when the dom is manipulated and adds eventlisteners to the new elements using #addHoverListeners()
+	 */
 	static #createDOMchangeListener(){
 		// Options for the observer (which mutations to observe)
 		const config = { attributes: true, childList: true, subtree: true }
@@ -258,6 +265,12 @@ class PopupEngine{
 		this.observer.observe(document, config)
 	}
 
+	/**
+	 * adds a onhover event to the elem that creates the popup and a mouseleave
+	 * that closes it. Also handles the popup delay.
+	 * @param {Element} elem 
+	 * @returns 
+	 */
 	static #addHoverListener(elem){
 		if(elem.dataset.createPopup === "false")
 			return
@@ -295,6 +308,10 @@ class PopupEngine{
 		}
 	}
 
+	/**
+	 * creates a small text only popup on top of a html element when its hovered
+	 * @param {JSON} settings of the popup like text, heading, position. Check README for details.
+	 */
 	static createInlinePopup(settings){
 		if(!this.#checkHTML || !settings )return
 
@@ -391,6 +408,9 @@ class PopupEngine{
 		settings?.element.classList.add("popupVisible")
 	}
 
+	/**
+	 * Closes the inline popup and removes the .popupVisible
+	 */
 	static closeInlinePopup(){
 		if(this.inline.style.scale == 1){
 			document.querySelectorAll('.popupVisible').forEach((elem)=>{elem.classList.remove("popupVisible")})
@@ -400,6 +420,10 @@ class PopupEngine{
 		}
 	}
 
+	/**
+	 * creates a full screen modal popup on on top of the whole page that can contain text inputs and buttons.
+	 * @param {JSON} settings of the popup like text, heading, buttons. Check README for details.
+	 */
 	static createModal(settings = {}){
 		return new Promise((resolve, reject) => {
 			this.endModal = resolve
@@ -502,6 +526,12 @@ class PopupEngine{
 		})
 	}
 
+	/**
+	 * Runns any button action and/or closes the popop. Should only be run if you want to close a modal and potentially lose all its data.
+	 * @param {*} closePopup in case a button shouldnt actually close the popup, Defaults to true.
+	 * @param {*} closeAction will be run if specified
+	 * @param {*} data that will be handed to the specified action
+	 */
 	static closeModal(closePopup = true, closeAction, data){
 		//get values of inputs
 		if(this.modalContent.querySelector(".popupEngineModalInputs")){
