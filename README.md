@@ -170,13 +170,14 @@ To close this popup again just call `PopupEngine.closeInlinePopup()`
 *register popup maybe?*
 
 ### Example
-Create Popups via HTML
+HTML
 ```HTML
-<p data-popup-heading="hello world" data-popup-text="hey whats poppin" style="width: fit-content;" data-popup-delay="300">hover me</p>
+<p data-popup-heading="hello world" data-popup-text="hey whats poppin" data-popup-delay="300" style="width: fit-content;">hover me</p>
 <p data-popup-text="Is a cool guy" data-create-popup="false" id="userName">click me</p>
 ```
-Create Popups via JS
+JavaScript
 ```JS
+//only neccessary if you want to create a popup yourself like here.
 let userNameElem = document.querySelector('#userName')
 let closeTimeout
 

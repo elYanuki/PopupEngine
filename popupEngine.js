@@ -230,19 +230,23 @@ class PopupEngine{
 		// Options for the observer (which mutations to observe)
 		const config = { attributes: true, childList: true, subtree: true }
 
-		let relevantAttributes = ["data-popup-text", "data-popup-heading", "data-create-popup"]
+		let relevantAttributes = ["data-popup-text", "data-popup-heading", "data-create-popup", "data-popup-delay"]
 
 		// Callback function to execute when mutations are observed
 		const callback = (mutationList, observer) => {
 			for (const mutation of mutationList) {
+				console.log(mutation.attributeName, mutation)
 				if (mutation.type === "childList" && mutation.type != null) {
-					console.log("mutation detected, type:", mutation.attributeName)
-
 					mutation.addedNodes.forEach((elem)=>{
 						if(elem.dataset.popuptext != undefined){
 							this.#addHoverListener(elem)
 						}
 					}) 
+				}
+				else if(relevantAttributes.includes(mutation.attributeName)){
+					if(mutation.target != undefined){
+						this.#addHoverListener(mutation.target)
+					}
 				}
 			}
 		};
@@ -258,9 +262,15 @@ class PopupEngine{
 		if(elem.dataset.createPopup === "false")
 			return
 
-		let delay = elem.dataset.popupDelay
-		console.log(delay)
+		console.log("creating hovers for", elem)
+
+		let delay = parseInt(elem.dataset.popupDelay)
 		if(!elem.dataset.popupDelay){
+			delay = this.config.defaultPopupDelay
+		}
+		else if(!delay){
+			if(this.config.doLogs)
+				console.log("invalid delay entered using default value", elem);
 			delay = this.config.defaultPopupDelay
 		}
 
