@@ -264,13 +264,13 @@ class PopupEngine{
 			for (const mutation of mutationList) {
 				if (mutation.type === "childList" && mutation.type != null) {
 					mutation.addedNodes.forEach((elem)=>{
-						if(elem.dataset.popuptext != undefined){
+						if(elem?.dataset?.popuptext !== undefined){
 							this.#addHoverListener(elem)
 						}
 					}) 
 				}
 				else if(relevantAttributes.includes(mutation.attributeName)){
-					if(mutation.target != undefined){
+					if(mutation.target !== undefined){
 						this.#addHoverListener(mutation.target)
 					}
 				}
