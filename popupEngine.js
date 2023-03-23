@@ -294,8 +294,6 @@ class PopupEngine{
 		if(elem.dataset.createPopup === "false")
 			return
 
-		console.log("creating hovers for", elem)
-
 		let delay = parseInt(elem.dataset.popupDelay)
 		if(!elem.dataset.popupDelay){
 			delay = this.config.defaultPopupDelay
