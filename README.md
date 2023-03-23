@@ -20,9 +20,12 @@ Simple js libary that adds a PopupEngine class that can be used to create simple
 Download the engine and inport it in your html's head `<script src='PopupEngine.js'></script>`.
 
 Use `PopupEngine.init()` to create the html that the engine uses. The init function also accepts a optional config object whith the following settings:
-- **doLogs**: controlls wheter or not the engine will output errors and information to the console.
-- **preferedInlinePopupPosition**: the prefered position for the inline popup to appear. Either at the "bottom" or "top" of the hovered element or the mouse. Defaults to "top"
-- **defaultPopupDelay**: the time it takes for a inline popup to appear (how long the element has to be hovered). Defaults to 0.
+- `doLogs` controlls wheter or not the engine will output errors and information to the console.
+- `preferedInlinePopupPosition` the prefered position for the inline popup to appear. Either at the "bottom" or "top" of the hovered element or the mouse. Defaults to "top"
+- `defaultPopupDelay` the time it takes for a inline popup to appear (how long the element has to be hovered). Defaults to 0.
+- `textColor` font color of all text
+- `backgroundColor` background color of the popups
+- `elemBackground` backgroundcolor of elements like buttons and inputs
 
 You can test the success of the init by calling `PopupEngine.test()` in the console which will create a modal and check for simple errors with the generated html and log possible errors.
 
@@ -201,10 +204,11 @@ userNameElem.addEventListener("click", (event)=>{
 ## Customization
 For general configuration see the [Initialization](#initialization).
 
-Every element created by the Engine has a css class assigned to it and uses css variables defined in the `:root{}` section.
-The engine creates its own css file and uses a `:where()` selector that should give everything a specificity of 0 and therefore allow it to be overwritten. I have tested this in all major browsers, if you still run into problems just add `body .popupEngineSelector{}`.
+Every element created by the Engine has a css class assigned to it and uses css variables defined in the `:root{}` section, to edit these variables change the following options in the config when [initializing](#initialization).
+- `textColor`
+- `backgroundColor` background color of the popups
+- `elemBackground` backgroundcolor of elements like buttons and inputs
+
+The engine creates its own css file and uses a `:where()` selector that should give everything a specificity of 0 and therefore allow it to be overwritten. I have tested this in all major browsers, if you still run into problems just add `body ` or anything that increases specificity before your selector.
 
 The css classes are listed in the usage section above.
-The following variables are available: 
-- `--popupEngine-background-color`
-- `--popupEngine-color`

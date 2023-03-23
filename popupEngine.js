@@ -9,6 +9,9 @@ class PopupEngine{
 		doLogs: true,
 		preferedInlinePopupPosition: "top",
 		defaultPopupDelay: 0,
+		textColor: "white",
+		backgroundColor: "hsl(0,0%,15%)",
+		elemBackground: "hsl(0,0%,25%)"
 	}
 
 	static endModal
@@ -46,6 +49,16 @@ class PopupEngine{
 					this.config.preferedInlinePopupPosition = config.preferedInlinePopupPosition
 				else
 					console.error('invalid prefered position: "' + config.preferedInlinePopupPosition + '" either "top" or "bottom". Config option will default to "top".');
+			}
+
+			if(config.textColor){
+				this.config.textColor = config.textColor
+			}
+			if(config.backgroundColor){
+				this.config.backgroundColor = config.backgroundColor
+			}
+			if(config.elemBackground){
+				this.config.elemBackground = config.elemBackground
 			}
 		}
 
@@ -94,8 +107,9 @@ class PopupEngine{
 		//----------- modal -----------//
 		//#region 
 		stylesheet.insertRule(`:root{
-			--popupEngine-background-color: white;
-			--popupEngine-color: black;
+			--popupEngine-background-color: ${this.config.backgroundColor};
+			--popupEngine-color: ${this.config.textColor};
+			--popupEngine-elem-background-color: ${this.config.elemBackground}
 		}`)
 
 		stylesheet.insertRule(`:where(.popupEngineModalContainer){
@@ -145,6 +159,11 @@ class PopupEngine{
 			border: 1px solid gray;
 			margin: .2rem 0 .5rem 0;
 			color: var(--popupEngine-color);
+			background-color: var(--popupEngine-elem-background-color);
+		}`)
+
+		stylesheet.insertRule(`:where(.popupEngineModalInput::placholder) {
+			color: hsl(0, 0%, 50%)
 		}`)
 		
 		stylesheet.insertRule(`:where(.popupEngineModalInputLabel) {
@@ -153,9 +172,9 @@ class PopupEngine{
 		
 		stylesheet.insertRule(`:where(.popupEngineModalButtons) {
 			display: flex;
-				flex-wrap: wrap;
-				gap: 1rem;
-				justify-content: center;
+			flex-wrap: wrap;
+			gap: 1rem;
+			justify-content: center;
 		}`)
 		
 		stylesheet.insertRule(`:where(.popupEngineModalButton) {
@@ -163,6 +182,7 @@ class PopupEngine{
 			border: 1px solid gray;
 			padding: .5rem;
 			color: var(--popupEngine-color);
+			background-color: var(--popupEngine-elem-background-color);
 		}`)
 		//#endregion
 		
@@ -242,7 +262,6 @@ class PopupEngine{
 		// Callback function to execute when mutations are observed
 		const callback = (mutationList, observer) => {
 			for (const mutation of mutationList) {
-				console.log(mutation.attributeName, mutation)
 				if (mutation.type === "childList" && mutation.type != null) {
 					mutation.addedNodes.forEach((elem)=>{
 						if(elem.dataset.popuptext != undefined){
@@ -313,7 +332,7 @@ class PopupEngine{
 	 * @param {JSON} settings of the popup like text, heading, position. Check README for details.
 	 */
 	static createInlinePopup(settings){
-		if(!this.#checkHTML || !settings )return
+		if(!this.#checkHTML() || !settings )return
 
 		if(!settings.position){
 			if(this.config.doLogs)
@@ -428,7 +447,7 @@ class PopupEngine{
 		return new Promise((resolve, reject) => {
 			this.endModal = resolve
 	
-			if(!this.#checkHTML)return
+			if(!this.#checkHTML())return
 	
 			if(this.modal.style.display != "none"){
 				if(this.config.doLogs)
@@ -567,6 +586,8 @@ class PopupEngine{
 			console.error("PopupEngine has not yet been initialized: PopupEngine.init(). \n try running PopupEngine.test()")
 			return false
 		}
+
+		return true
 	}
 
 	/**
