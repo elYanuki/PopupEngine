@@ -1,4 +1,4 @@
-class PopupEngine{
+exports.PopupEngine = class PopupEngine{
 	static modal = document.createElement("div")
 	static modalContent = document.createElement("div")
 	static inline = document.createElement("div")
@@ -622,5 +622,9 @@ class PopupEngine{
 				}
 			]
 		})
+	}
+
+	static out(){
+		console.log("hello from export")
 	}
 }
