@@ -1,17 +1,27 @@
-exports.PopupEngine = class PopupEngine{
+class PopupEngine{
 	static modal = document.createElement("div")
 	static modalContent = document.createElement("div")
-	static inline = document.createElement("div")
-	static inlinePopupDelay
 
+	static inline = document.createElement("div")
+	static inlinePopupDelay //timeout object not time value
+
+	static phoneNotification
+		
 	static initialized = false
 	static config = {
 		doLogs: true,
 		preferedInlinePopupPosition: "top",
 		defaultPopupDelay: 0,
+
 		textColor: "white",
 		backgroundColor: "hsl(0,0%,15%)",
-		elemBackground: "hsl(0,0%,25%)"
+		elemBackground: "hsl(0,0%,25%)",
+
+		notificationOffset: {top: "1vw", bottom: "1vw", left: "1vw", right: "1vw"},
+		notificationOffsetPhone: "1vh",
+		defaultNotificationLifetime: 5000,
+
+		phoneBreakpoint: 600
 	}
 
 	static endModal
@@ -48,7 +58,7 @@ exports.PopupEngine = class PopupEngine{
 				if(["top","bottom"].includes(config.preferedInlinePopupPosition))
 					this.config.preferedInlinePopupPosition = config.preferedInlinePopupPosition
 				else
-					console.error('invalid prefered position: "' + config.preferedInlinePopupPosition + '" either "top" or "bottom". Config option will default to "top".');
+					console.error('invalid prefered position: "' + config.preferedInlinePopupPosition + '" either "top" or "bottom". Will default to "top".');
 			}
 
 			if(config.textColor){
@@ -59,6 +69,26 @@ exports.PopupEngine = class PopupEngine{
 			}
 			if(config.elemBackground){
 				this.config.elemBackground = config.elemBackground
+			}
+
+			if(config.notificationOffset){
+				this.config.notificationOffset = config.notificationOffset
+			}
+			if(config.notificationOffsetPhone){
+				this.config.notificationOffsetPhone = config.notificationOffsetPhone
+			}
+			if(config.defaultNotificationLifetime){
+				if(typeof config.defaultNotificationLifetime === "number")
+					this.config.defaultNotificationLifetime = config.defaultNotificationLifetime
+				else
+					console.error('invalid default notification lifetime value: "' + config.defaultNotificationLifetime + '" must be a number, will default to "5000".');
+			}
+
+			if(config.phoneBreakpoint){
+				if(typeof config.phoneBreakpoint === "number")
+					this.config.phoneBreakpoint = config.phoneBreakpoint
+				else
+					console.error('invalid phone breakpoint value: "' + config.phoneBreakpoint + '" must be a number, will default to "600".');
 			}
 		}
 
@@ -86,6 +116,22 @@ exports.PopupEngine = class PopupEngine{
 		document.body.appendChild(this.modal)
 		document.body.appendChild(this.inline)
 
+		let counter = 0
+		let yOptions = ["top", "bottom"]
+		let xOptions = ["left", "center", "right"]
+		yOptions.forEach(yAxis => {
+			xOptions.forEach(xAxis => {
+				counter++
+				let noti = document.createElement('div')
+				noti.classList.add("popupEngineNotificationContainer", yAxis, xAxis)
+				document.body.appendChild(noti)
+			});
+		});
+
+		this.phoneNotification = document.createElement('div')
+		this.phoneNotification.classList.add("popupEngineNotificationContainer", "phone")
+		document.body.appendChild(this.phoneNotification)
+
 		this.#createCSS()
 		this.#createDOMchangeListener()
 
@@ -105,6 +151,7 @@ exports.PopupEngine = class PopupEngine{
 		const stylesheet = style.sheet
 
 		//----------- modal -----------//
+
 		//#region 
 		stylesheet.insertRule(`:root{
 			--popupEngine-background-color: ${this.config.backgroundColor};
@@ -246,7 +293,76 @@ exports.PopupEngine = class PopupEngine{
 			margin: 0 0 .5rem 0;
 			font-weight: bold;
 		}`)
+		//#endregion
+		
+		//----------- Notification -----------//
+		
+		//#region 
+		stylesheet.insertRule(`:where(.popupEngineNotificationContainer) {
+			position: fixed;
+			display: flex;
+			flex-direction: column;
+			max-width: 20vw;
+			z-index: 999;
+			gap: 1vw;
+		}`)
+		stylesheet.insertRule(`:where(.popupEngineNotificationContainer.top) {
+			top: ${this.config.notificationOffset.top};
+		}`)
+		stylesheet.insertRule(`:where(.popupEngineNotificationContainer.bottom) {
+			bottom: ${this.config.notificationOffset.bottom};
+		}`)
+		stylesheet.insertRule(`:where(.popupEngineNotificationContainer.left) {
+			left: ${this.config.notificationOffset.left};
+		}`)
+		stylesheet.insertRule(`:where(.popupEngineNotificationContainer.right) {
+			right: ${this.config.notificationOffset.right};
+		}`)
+		stylesheet.insertRule(`:where(.popupEngineNotificationContainer.center) {
+			left: 50%;
+			transform: translateX(-50%);
+		}`)
+		stylesheet.insertRule(`:where(.popupEngineNotificationContainer.phone) {
+			top: ${this.config.notificationOffsetPhone};
+			left: 50%;
+			transform: translateX(-50%);
+			width: 80vw;
+			max-width: 80vw !important;
+		}`)
+		
+		stylesheet.insertRule(`:where(.popupEngineNotification) {
+			padding: .5rem;
+			gap: .5rem;
+			display: flex;
+			align-items: center;
+			box-sizing: border-box;
+			background-color: var(--popupEngine-background-color);
+			box-shadow: 0 0 .3rem .3rem rgba(0,0,0,.1);
+			color: var(--popupEngine-color);
+		}`)
 
+		stylesheet.insertRule(`:where(.popupEngineNotificationHeading) {
+			font-size: 1rem;
+			margin: 0 0 .5rem 0;
+			font-weight: bold;
+		}`)
+
+		stylesheet.insertRule(`:where(.popupEngineNotificationText) {
+			margin: 0;
+			font-size: .9rem;
+		}`)
+		
+		stylesheet.insertRule(`:where(.popupEngineNotificationCloseIcon) {
+			display: grid;
+			place-items: center;
+			width: 1.5rem;
+			cursor: pointer;
+			margin-left: auto;
+		}`)
+		stylesheet.insertRule(`:where(.popupEngineNotificationCloseIcon p) {
+			margin: 0;
+			font-family: Segoe UI Symbol;
+		}`)
 		//#endregion
 	}
 
@@ -323,6 +439,70 @@ exports.PopupEngine = class PopupEngine{
 				})
 			},delay)
 		}
+	}
+
+	static createNotification(settings){
+		if(!this.#checkHTML() || !settings )return
+
+		if(!settings.position || settings.position.length !== 2){
+			if(this.config.doLogs)
+				console.error("position setting is invalid: expecting a [array] that contains the y axis(top or bottom) and the x axis (left, center or right)")
+			return
+		}
+
+		let noti = document.createElement('div')
+		noti.classList.add("popupEngineNotification")
+
+		let content = document.createElement('div')
+
+		//create heading
+		if(settings.heading){
+			let heading = document.createElement("p")
+			heading.innerHTML = settings.heading
+			heading.classList.add("popupEngineNotificationHeading")
+
+			content.appendChild(heading)
+		}
+
+		//generate text
+		let popupText = document.createElement("p")
+		popupText.classList.add("popupEngineNotificationText")
+		popupText.innerHTML = settings.text || "no text specified"
+
+		content.appendChild(popupText)
+		noti.appendChild(content)
+
+		//create close icon
+		let close = document.createElement('div')
+		close.classList.add("popupEngineNotificationCloseIcon")
+		close.addEventListener("click", ()=>{
+			PopupEngine.closeNotification(noti)
+		})
+		let closeIcon = document.createElement('p')
+		closeIcon.innerHTML = "&#10006"
+
+		close.appendChild(closeIcon)
+		noti.appendChild(close)
+
+		if(window.innerWidth > this.config.phoneBreakpoint){ //desktop mode
+			let targetedContainer = document.querySelector('.popupEngineNotificationContainer.' + settings.position[0] + '.' + settings.position[1])
+			targetedContainer.appendChild(noti)
+		}
+		else{//phone
+			this.phoneNotification.appendChild(noti)
+		}
+
+		if(!settings.lifeTime || settings.lifeTime > 0){
+			setTimeout(function(){
+				PopupEngine.closeNotification(noti)
+			}, settings.lifeTime || this.config.defaultNotificationLifetime)
+		}
+
+		return noti;
+	}
+
+	static closeNotification(noti) {
+		noti.remove()
 	}
 
 	/**

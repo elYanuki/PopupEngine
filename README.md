@@ -12,6 +12,7 @@ Simple js libary that adds a PopupEngine class that can be used to create simple
 - [Inline](#inline)
 	- [Create via JS](#create-via-js)
 	- [Example](#example-1)
+- [Notifaction](#notifaction)
 - [Customization](#customization)
 
 
@@ -198,6 +199,30 @@ userNameElem.addEventListener("click", (event)=>{
 	},1000)
 })
 ```
+
+## Notifaction
+
+```JS
+PopupEngine.init({defaultNotificationLifetime: 5000, phoneBreakpoint: 600, notificationOffset: {top: "1vw", bottom: "1vw", left: "1vw", right: "1vw"}, notificationOffsetPhone: "1vh",}) //all the default values
+
+function create(){
+	PopupEngine.createNotification({
+		heading: "hallo",
+		text: "bimmel bammel bummel",
+		position: ["top", "right"], 
+	})
+	PopupEngine.createNotification({
+		text: "bimmel bammel bummel",
+		position: ["bottom", "left"], 
+		lifeTime: 5000, //in milliseconds
+	})
+	PopupEngine.createNotification({
+		position: ["top", "center"], 
+		lifeTime: -1, //wont disappear
+	})
+}
+```
+
 
 ---
 
