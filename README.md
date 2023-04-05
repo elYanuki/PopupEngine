@@ -1,33 +1,36 @@
-# PopupEngine <!-- omit from toc -->
+# **PopupEngine** <!-- omit from toc -->
 Simple js libary that adds a PopupEngine class that can be used to create simple unstyled popups. Intended for use with my own projects.
 
 - [Initialization](#initialization)
 - [Modal](#modal)
-	- [Text](#text)
-	- [Heading](#heading)
-	- [Buttons](#buttons)
-	- [Inputs](#inputs)
+	- [Settings](#settings)
+		- [Text](#text)
+		- [Heading](#heading)
+		- [Buttons](#buttons)
+		- [Inputs](#inputs)
 	- [Returned promise](#returned-promise)
 	- [Example](#example)
 - [Inline](#inline)
 	- [Create via JS](#create-via-js)
 	- [Example](#example-1)
 - [Notification](#notification)
-	- [Text](#text-1)
-	- [Heading](#heading-1)
-	- [Position](#position)
-	- [Life Time](#life-time)
-	- [CSSClass](#cssclass)
+	- [Settings](#settings-1)
+		- [Text](#text-1)
+		- [Heading](#heading-1)
+		- [Position](#position)
+		- [Life Time](#life-time)
+		- [CSSClass](#cssclass)
 	- [createNotification return value](#createnotification-return-value)
 	- [Example](#example-2)
 - [Customization](#customization)
 
 
-## Initialization
+# Initialization
 
 Download the engine and inport it in your html's head `<script src='PopupEngine.js'></script>`.
 
-Use `PopupEngine.init()` to create the html that the engine uses. The init function also accepts a optional config object whith the following settings:
+Use `PopupEngine.init()` to create the html that the engine uses. The init function also accepts a optional config object with the following settings:
+
 - `doLogs` controlls wheter or not the engine will output errors and information to the console.
 - `preferedInlinePopupPosition` the prefered position for the inline popup to appear. Either at the "bottom" or "top" of the hovered element or the mouse. Defaults to "top"
 - `defaultInlinePopupDelay` the time it takes for a inline popup to appear (how long the element has to be hovered). Defaults to 0.
@@ -41,9 +44,7 @@ Use `PopupEngine.init()` to create the html that the engine uses. The init funct
 
 You can test the success of the init by calling `PopupEngine.test()` in the console which will create a modal and check for simple errors with the generated html and log possible errors.
 
----
-
-## Modal
+# Modal
 
 The whole modal is a fixed element with z-index 1000 that will overlay the whole page.
 
@@ -51,6 +52,7 @@ The whole modal is a fixed element with z-index 1000 that will overlay the whole
 \
 This function should only be called after initialization and after the DOM is loaded (defer in script tag or window.load listener).
 
+## Settings
 The create function accepts the following settings:
 
 ### Text
@@ -115,7 +117,7 @@ inputs: [
 ]
 ```
 
-### Returned promise
+## Returned promise
 The `PopupEngine.createModal()` function returns a promise which is resolved with a data object after the modal closes. This data object contains.
 - the modal's `text`
 - the modal's `heading`
@@ -125,7 +127,7 @@ The `PopupEngine.createModal()` function returns a promise which is resolved wit
 
 This can be used to only run further code when the modal is closed, add more functionality to the buttons, or work better with the entered data.
 
-### Example
+## Example
 This example contains all currently available features of modals
 ```JS
 PopupEngine.init()
@@ -158,9 +160,7 @@ PopupEngine.createModal({
 })
 ```
 
----
-
-## Inline
+# Inline
 
 The Inline popup is a small box that appears on hover over specified elems. The div is absolutely positioned and has a z-index of 999. The popup will appear over of the text per default but pop down if obstructed or changed in the [Initialization](#initialization) config. 
 \
@@ -174,7 +174,7 @@ The intended way to create these popups is by adding `data-popup-text` to any ht
 **disclaimer**
 The engine will overwrite the onmouseenter property of all the elements.
 
-### Create via JS
+## Create via JS
 
 You can also create a inline popup by calling `PopupEngine.createInlinePopup(settings)`. This will create a inline just like if a elemnt was hovered but you can specifie all settings just like with the modals. The settings param is a JSON object that expects:
 - a `position` this is either a element or the mouse event that you get from a event listener. The created popup will be alligned to it.
@@ -186,7 +186,7 @@ To close this popup again just call `PopupEngine.closeInlinePopup()`
 
 *register popup maybe?*
 
-### Example
+## Example
 HTML
 ```HTML
 <p data-popup-heading="hello world" data-popup-text="hey whats poppin" data-popup-delay="300" style="width: fit-content;">hover me</p>
@@ -215,21 +215,23 @@ userNameElem.addEventListener("click", (event)=>{
 })
 ```
 
-## Notification
+# Notification
 
 The Notification is a small text only box that appears in a corner to notify the user of something. The divs have position fixed and a z-index of 999. The position of these notifications can be controlled when creating them, if there is mutliple in the same spot they will stack on bellow each other. Notifications will disappear after a specified time or by using the "x" button.
 \
 Every created Notification will have the CSS class: `popupEngineNotification`
 
-If the screens width is below a specified breakpoint the notifications will adopt a mobile mode. here the xAxis will be igonored and all new Notifications will either be placed on the top of the screen or the bottom.
+If the screens width is below a specified breakpoint the notifications will adopt a mobile mode. here the xAxis will be igonored and all new Notifications will either be placed at the top of the screen or the bottom.
 
-The Notifications are not designed to adapt to spontaneous screen size changes so old Notifications will stay in their respective corners and look bad on the new mobile mode.. (if anyone actually needs this feature open a issue and i will implement this behaviour).
+The Notifications are not designed to adapt to spontaneous screen size changes so old Notifications will stay in their respective corners and look bad on the new mobile mode.. (if anyone actually needs this open a issue and I will implement this behaviour).
 
 For changing the exact offsets of the preconfigured positions, what screen sizes count as mobile and the default lifetime check the [Initialization](#initialization).
 
 **Create a notification** using `PopupEngine.createNotification(settings)`. This function expects a single parameter which is a JSON object that has multiple optional values that allow you to customize the modal.
 \
 This function should only be called after initialization and after the DOM is loaded (defer in script tag or window.load listener).
+
+## Settings
 
 The create function accepts the following settings:
 
@@ -244,19 +246,19 @@ Adds a heading to the modal, this is a optional parameter. `heading: "My notific
 CSS class: `popupEngineNotificationHeading`
 
 ### Position
-This Setting controlls where the notification will appear, it expects a array that has a xAxis value (left, center or right) and a yAxis value(top or bottom). The order of these is not important, if its not specified the position will default to top left. `position: ["top", right"]`
+This setting controlls where the notification will appear, it expects a array that has a xAxis value (left, center or right) and a yAxis value(top or bottom). The order of these is not important, if its not specified the position will default to top left. `position: ["top", right"]`
 
 ### Life Time
-Controlls after how many Milliseconds the Notification will disappear. Set this to -1 and the Notification will never disappear. When not specified this setting will default to the `defaultNotificationLifetime` config. `lifetime: 10_000`
+Controlls after how many milliseconds the notification will disappear. Set this to -1 and the notification will never disappear. When not specified this setting will default to the `defaultNotificationLifetime` config. `lifetime: 10_000`
 
 ### CSSClass
-Either a String or array of Strings of CSS classes that will be added to the notification in adition to the `popupEngineNotification` class. This can be used to style specific notifications differently like errors, warnings and infos. `CSSClass: ["info", "important"]`
+Either a string or array of strings of CSS classes that will be added to the notification in adition to the `popupEngineNotification` class. This can be used to style specific notifications differently like errors, warnings and infos. `CSSClass: ["info", "important"]`
 
-### createNotification return value
+## createNotification return value
 
 The create function will return a reference to the created popup in case you want to change the notification´s content or style. This reference can also be passed to the `PopupEngine.closeNotification(notification)` function and the Notification will be removed.
 
-### Example
+## Example
 
 ```JS
 PopupEngine.init()
@@ -283,9 +285,7 @@ function create(){
 }
 ```
 
----
-
-## Customization
+# Customization
 For general configuration see the [Initialization](#initialization).
 
 Every element created by the Engine has a css class assigned to it and uses css variables defined in the `:root{}` section, to edit these variables change the following options in the config when [initializing](#initialization).
