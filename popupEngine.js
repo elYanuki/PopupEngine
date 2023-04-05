@@ -4,21 +4,19 @@ class PopupEngine{
 
 	static inline = document.createElement("div")
 	static inlinePopupDelay //timeout object not time value
-
-	static phoneNotification
 		
 	static initialized = false
 	static config = {
 		doLogs: true,
 		preferedInlinePopupPosition: "top",
-		defaultPopupDelay: 0,
+		defaultInlinePopupDelay: 0,
 
 		textColor: "white",
 		backgroundColor: "hsl(0,0%,15%)",
 		elemBackground: "hsl(0,0%,25%)",
 
 		notificationOffset: {top: "1vw", bottom: "1vw", left: "1vw", right: "1vw"},
-		notificationOffsetPhone: "1vh",
+		notificationOffsetPhone: {top: "1vh", bottom: "1vh"},
 		defaultNotificationLifetime: 5000,
 
 		phoneBreakpoint: 600
@@ -47,11 +45,11 @@ class PopupEngine{
 					console.error('invalid value for coinfig doLogs: "' + config.preferedInlinePopupPosition + '" must be a boolean. Will default to true.');
 			}
 
-			if(config.defaultPopupDelay){
-				if(typeof config.defaultPopupDelay == "number" && config.defaultPopupDelay >= 0)
-					this.config.defaultPopupDelay = config.defaultPopupDelay
+			if(config.defaultInlinePopupDelay){
+				if(typeof config.defaultInlinePopupDelay === "number" && config.defaultInlinePopupDelay >= 0)
+					this.config.defaultInlinePopupDelay = config.defaultInlinePopupDelay
 				else
-					console.error('invalid default delay: "' + config.defaultPopupDelay + '" must be a number >= 0. Will default to 0');
+					console.error('invalid default delay: "' + config.defaultInlinePopupDelay + '" must be a number >= 0. Will default to 0');
 			}
 
 			if(config.preferedInlinePopupPosition){
@@ -126,12 +124,12 @@ class PopupEngine{
 				noti.classList.add("popupEngineNotificationContainer", yAxis, xAxis)
 				document.body.appendChild(noti)
 			});
+
+			let noti = document.createElement('div')
+			noti.classList.add("popupEngineNotificationContainer", "phone", "center", yAxis)
+			document.body.appendChild(noti)
 		});
-
-		this.phoneNotification = document.createElement('div')
-		this.phoneNotification.classList.add("popupEngineNotificationContainer", "phone")
-		document.body.appendChild(this.phoneNotification)
-
+		
 		this.#createCSS()
 		this.#createDOMchangeListener()
 
@@ -305,6 +303,7 @@ class PopupEngine{
 			max-width: 20vw;
 			z-index: 999;
 			gap: 1vw;
+			height: auto;
 		}`)
 		stylesheet.insertRule(`:where(.popupEngineNotificationContainer.top) {
 			top: ${this.config.notificationOffset.top};
@@ -322,12 +321,16 @@ class PopupEngine{
 			left: 50%;
 			transform: translateX(-50%);
 		}`)
+
 		stylesheet.insertRule(`:where(.popupEngineNotificationContainer.phone) {
-			top: ${this.config.notificationOffsetPhone};
-			left: 50%;
-			transform: translateX(-50%);
 			width: 80vw;
 			max-width: 80vw !important;
+		}`)
+		stylesheet.insertRule(`:where(.popupEngineNotificationContainer.phone.top) {
+			top: ${this.config.notificationOffsetPhone.top} !important;
+		}`)
+		stylesheet.insertRule(`:where(.popupEngineNotificationContainer.phone.bottom) {
+			bottom: ${this.config.notificationOffsetPhone.bottom} !important;
 		}`)
 		
 		stylesheet.insertRule(`:where(.popupEngineNotification) {
@@ -412,12 +415,12 @@ class PopupEngine{
 
 		let delay = parseInt(elem.dataset.popupDelay)
 		if(!elem.dataset.popupDelay){
-			delay = this.config.defaultPopupDelay
+			delay = this.config.defaultInlinePopupDelay
 		}
 		else if(!delay){
 			if(this.config.doLogs)
 				console.log("invalid delay entered using default value", elem);
-			delay = this.config.defaultPopupDelay
+			delay = this.config.defaultInlinePopupDelay
 		}
 
 		elem.onmouseenter = ()=>{
@@ -444,10 +447,12 @@ class PopupEngine{
 	static createNotification(settings){
 		if(!this.#checkHTML() || !settings )return
 
-		if(!settings.position || settings.position.length !== 2){
+		if(!settings.position)
+			settings.position = ["top", "left"]
+
+		if(settings.position.length !== 2){
 			if(this.config.doLogs)
 				console.error("position setting is invalid: expecting a [array] that contains the y axis(top or bottom) and the x axis (left, center or right)")
-			return
 		}
 
 		let noti = document.createElement('div')
@@ -484,18 +489,35 @@ class PopupEngine{
 		close.appendChild(closeIcon)
 		noti.appendChild(close)
 
-		if(window.innerWidth > this.config.phoneBreakpoint){ //desktop mode
-			let targetedContainer = document.querySelector('.popupEngineNotificationContainer.' + settings.position[0] + '.' + settings.position[1])
-			targetedContainer.appendChild(noti)
-		}
-		else{//phone
-			this.phoneNotification.appendChild(noti)
+		//add custom classes
+		if(settings.CSSClass != undefined){
+			if(Array.isArray(settings.CSSClass))
+				noti.classList.add(...settings.CSSClass)
+			else
+				noti.classList.add(settings.CSSClass)
 		}
 
-		if(!settings.lifeTime || settings.lifeTime > 0){
+		//append notification to container
+		let targetedContainer
+		if(window.innerWidth > this.config.phoneBreakpoint){ //desktop mode
+			targetedContainer = document.querySelector('.popupEngineNotificationContainer.' + settings.position[0] + '.' + settings.position[1])
+		}
+		else{//phone
+			if(["top","bottom"].includes(settings.position[0])){
+				targetedContainer = document.querySelector('.popupEngineNotificationContainer.phone.' + settings.position[0])
+			}
+			else{
+				targetedContainer = document.querySelector('.popupEngineNotificationContainer.phone.' + settings.position[1])
+			}
+		}
+
+		targetedContainer.appendChild(noti)
+
+		//add auto close
+		if(!settings.lifetime || settings.lifetime > 0){
 			setTimeout(function(){
 				PopupEngine.closeNotification(noti)
-			}, settings.lifeTime || this.config.defaultNotificationLifetime)
+			}, settings.lifetime || this.config.defaultNotificationLifetime)
 		}
 
 		return noti;

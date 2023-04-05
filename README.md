@@ -12,7 +12,14 @@ Simple js libary that adds a PopupEngine class that can be used to create simple
 - [Inline](#inline)
 	- [Create via JS](#create-via-js)
 	- [Example](#example-1)
-- [Notifaction](#notifaction)
+- [Notification](#notification)
+	- [Text](#text-1)
+	- [Heading](#heading-1)
+	- [Position](#position)
+	- [Life Time](#life-time)
+	- [CSSClass](#cssclass)
+	- [createNotification return value](#createnotification-return-value)
+	- [Example](#example-2)
 - [Customization](#customization)
 
 
@@ -23,10 +30,14 @@ Download the engine and inport it in your html's head `<script src='PopupEngine.
 Use `PopupEngine.init()` to create the html that the engine uses. The init function also accepts a optional config object whith the following settings:
 - `doLogs` controlls wheter or not the engine will output errors and information to the console.
 - `preferedInlinePopupPosition` the prefered position for the inline popup to appear. Either at the "bottom" or "top" of the hovered element or the mouse. Defaults to "top"
-- `defaultPopupDelay` the time it takes for a inline popup to appear (how long the element has to be hovered). Defaults to 0.
+- `defaultInlinePopupDelay` the time it takes for a inline popup to appear (how long the element has to be hovered). Defaults to 0.
 - `textColor` font color of all text
 - `backgroundColor` background color of the popups
 - `elemBackground` backgroundcolor of elements like buttons and inputs
+- `notificationOffset` the offset of all the notifications from the sides. Expects a JSON objects that defaults to: `{top: "1vw", bottom: "1vw", left: "1vw", right: "1vw"}`
+- `notificationOffsetPhone` the top and bottom offsets of the notifications on mobile mode, default to: `{top: "1vh", bottom: "1vh"}`
+- `defaultNotificationLifetime` the time in milliseconds after which a notfication will disappear, defaults to 5000
+- `phoneBreakpoint` if the screens width gets smaller than this, the engine will create all new notifications for mobile
 
 You can test the success of the init by calling `PopupEngine.test()` in the console which will create a modal and check for simple errors with the generated html and log possible errors.
 
@@ -36,9 +47,11 @@ You can test the success of the init by calling `PopupEngine.test()` in the cons
 
 The whole modal is a fixed element with z-index 1000 that will overlay the whole page.
 
-Create a new modal using `PopupEngine.createModal(settings)`. This function expects a single parameter which is a JSON object that has multiple optional values that allow you to customize the modal.
+**Create a new modal** using `PopupEngine.createModal(settings)`. This function expects a single parameter which is a JSON object that has multiple optional values that allow you to customize the modal.
 \
 This function should only be called after initialization and after the DOM is loaded (defer in script tag or window.load listener).
+
+The create function accepts the following settings:
 
 ### Text
 The actual text of the modal, this is one of the two essential settings which is why it defaults to "*no text specified*" when left blank. `text: "This is a popup text"`
@@ -46,7 +59,7 @@ The actual text of the modal, this is one of the two essential settings which is
 CSS class: `popupEngineModalText`
 
 ### Heading
-Ads a heading to the modal, this is a optional parameter. `heading: "My modal"`
+Adss a heading to the modal, this is a optional parameter. `heading: "My modal"`
 
 CSS class: `popupEngineModalHeading`
 
@@ -115,7 +128,7 @@ This can be used to only run further code when the modal is closed, add more fun
 ### Example
 This example contains all currently available features of modals
 ```JS
-PopupEngine.init({doLogs: true})
+PopupEngine.init()
 
 PopupEngine.createModal({
 	heading: "my popup",
@@ -181,6 +194,8 @@ HTML
 ```
 JavaScript
 ```JS
+PopupEngine.init()
+
 //only neccessary if you want to create a popup yourself like here.
 let userNameElem = document.querySelector('#userName')
 let closeTimeout
@@ -200,29 +215,73 @@ userNameElem.addEventListener("click", (event)=>{
 })
 ```
 
-## Notifaction
+## Notification
+
+The Notification is a small text only box that appears in a corner to notify the user of something. The divs have position fixed and a z-index of 999. The position of these notifications can be controlled when creating them, if there is mutliple in the same spot they will stack on bellow each other. Notifications will disappear after a specified time or by using the "x" button.
+\
+Every created Notification will have the CSS class: `popupEngineNotification`
+
+If the screens width is below a specified breakpoint the notifications will adopt a mobile mode. here the xAxis will be igonored and all new Notifications will either be placed on the top of the screen or the bottom.
+
+The Notifications are not designed to adapt to spontaneous screen size changes so old Notifications will stay in their respective corners and look bad on the new mobile mode.. (if anyone actually needs this feature open a issue and i will implement this behaviour).
+
+For changing the exact offsets of the preconfigured positions, what screen sizes count as mobile and the default lifetime check the [Initialization](#initialization).
+
+**Create a notification** using `PopupEngine.createNotification(settings)`. This function expects a single parameter which is a JSON object that has multiple optional values that allow you to customize the modal.
+\
+This function should only be called after initialization and after the DOM is loaded (defer in script tag or window.load listener).
+
+The create function accepts the following settings:
+
+### Text
+The actual text of the notification it defaults to "*no text specified*" when left blank. `text: "This is a notification"`
+
+CSS class: `popupEngineNotificationText`
+
+### Heading
+Adds a heading to the modal, this is a optional parameter. `heading: "My notification"`
+
+CSS class: `popupEngineNotificationHeading`
+
+### Position
+This Setting controlls where the notification will appear, it expects a array that has a xAxis value (left, center or right) and a yAxis value(top or bottom). The order of these is not important, if its not specified the position will default to top left. `position: ["top", right"]`
+
+### Life Time
+Controlls after how many Milliseconds the Notification will disappear. Set this to -1 and the Notification will never disappear. When not specified this setting will default to the `defaultNotificationLifetime` config. `lifetime: 10_000`
+
+### CSSClass
+Either a String or array of Strings of CSS classes that will be added to the notification in adition to the `popupEngineNotification` class. This can be used to style specific notifications differently like errors, warnings and infos. `CSSClass: ["info", "important"]`
+
+### createNotification return value
+
+The create function will return a reference to the created popup in case you want to change the notification´s content or style. This reference can also be passed to the `PopupEngine.closeNotification(notification)` function and the Notification will be removed.
+
+### Example
 
 ```JS
-PopupEngine.init({defaultNotificationLifetime: 5000, phoneBreakpoint: 600, notificationOffset: {top: "1vw", bottom: "1vw", left: "1vw", right: "1vw"}, notificationOffsetPhone: "1vh",}) //all the default values
+PopupEngine.init()
 
 function create(){
 	PopupEngine.createNotification({
-		heading: "hallo",
-		text: "bimmel bammel bummel",
-		position: ["top", "right"], 
+		text: "im notifying you of something",
 	})
 	PopupEngine.createNotification({
-		text: "bimmel bammel bummel",
+		text: "hey i will exist forever",
 		position: ["bottom", "left"], 
-		lifeTime: 5000, //in milliseconds
+		lifetime: -1,
+		CSSClass: "test"
 	})
-	PopupEngine.createNotification({
-		position: ["top", "center"], 
-		lifeTime: -1, //wont disappear
+	let noti = PopupEngine.createNotification({
+		text: "i would exist for 10 sec but disappear after 3",
+		lifetime: 10_000,
+		position: ["top", "center"],
+		CSSClass: ["hello", "world"]
 	})
+	setTimeout(function(){
+		PopupEngine.closeNotification(noti)
+	},3000)
 }
 ```
-
 
 ---
 
@@ -236,4 +295,4 @@ Every element created by the Engine has a css class assigned to it and uses css 
 
 The engine creates its own css file and uses a `:where()` selector that should give everything a specificity of 0 and therefore allow it to be overwritten. I have tested this in all major browsers, if you still run into problems just add `body ` or anything that increases specificity before your selector.
 
-The css classes are listed in the usage section above.
+The css classes are listed in each of their sections above.
