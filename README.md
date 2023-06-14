@@ -246,7 +246,7 @@ Adds a heading to the modal, this is a optional parameter. `heading: "My notific
 CSS class: `popupEngineNotificationHeading`
 
 ### Position
-This setting controlls where the notification will appear, it expects a array that has a xAxis value (left, center or right) and a yAxis value(top or bottom). The order of these is not important, if its not specified the position will default to top left. `position: ["top", right"]`
+This setting controlls where the notification will appear, it expects a array that has a xAxis value (left, center or right) and a yAxis value(top or bottom). The order of these is not important, if its not specified the position will default to top left. `position: ["top", "right"]`
 
 ### Life Time
 Controlls after how many milliseconds the notification will disappear. Set this to -1 and the notification will never disappear. When not specified this setting will default to the `defaultNotificationLifetime` config. `lifetime: 10_000`
