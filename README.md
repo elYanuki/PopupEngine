@@ -1,6 +1,10 @@
 # **PopupEngine** <!-- omit from toc -->
 Simple js libary that adds a PopupEngine class that can be used to create simple unstyled popups. Intended for use with my own projects.
 
+Styles can easily be added to the popups by using the css classes that are automatically assigned to all the elements.
+
+A typescript version of this tool is now available. It has the same functionality but is not yet propperly typed everywhere.
+
 - [Initialization](#initialization)
 - [Modal](#modal)
 	- [Settings](#settings)
@@ -28,6 +32,8 @@ Simple js libary that adds a PopupEngine class that can be used to create simple
 # Initialization
 
 Download the engine and inport it in your html's head `<script src='PopupEngine.js'></script>`.
+\
+If you are using typescript download the ts version and `import` it.
 
 Use `PopupEngine.init()` to create the html that the engine uses. The init function also accepts a optional config object with the following settings:
 
@@ -47,6 +53,8 @@ You can test the success of the init by calling `PopupEngine.test()` in the cons
 # Modal
 
 The whole modal is a fixed element with z-index 1000 that will overlay the whole page.
+\
+It uses the css class `popupEngineModalContainer` for the fullscreen background container and `popupEngineModalContent` for only the modal box itself.
 
 **Create a new modal** using `PopupEngine.createModal(settings)`. This function expects a single parameter which is a JSON object that has multiple optional values that allow you to customize the modal.
 \
