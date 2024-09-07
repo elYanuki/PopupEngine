@@ -1,0 +1,6 @@
+.github/
+.idea/
+package.json
+style.css
+test.js
+index.html
